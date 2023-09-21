@@ -1,14 +1,19 @@
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 from djoser.views import UserViewSet
 from .serializers import (
     CustomUserSerializer,
     SubscribeSerializer,
+    IngredientSerializer,
+    TagSerializer,
 )
 from users.models import User, Subscribe
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
+from recipes.models import Ingredient, Tag
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import IngredientFilter
 
 
 class CustomUserViewSet(UserViewSet):
@@ -42,3 +47,17 @@ class CustomUserViewSet(UserViewSet):
         pages = self.paginate_queryset(queryset)
         serializer = SubscribeSerializer(pages, many=True, context={"request": request})
         return self.get_paginated_response(serializer.data)
+
+
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
+    pagination_class = None
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    pagination_class = None

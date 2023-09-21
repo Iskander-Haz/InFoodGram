@@ -2,6 +2,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework import serializers, status
 from djoser.serializers import UserSerializer
 from users.models import User, Subscribe
+from recipes.models import Ingredient, Tag
 
 
 class CustomUserSerializer(UserSerializer):
@@ -50,3 +51,15 @@ class SubscribeSerializer(CustomUserSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = "__all__"
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = "__all__"
