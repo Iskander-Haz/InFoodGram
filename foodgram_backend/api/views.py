@@ -1,19 +1,21 @@
 from rest_framework.response import Response
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, mixins
 from djoser.views import UserViewSet
 from .serializers import (
     CustomUserSerializer,
     SubscribeSerializer,
     IngredientSerializer,
     TagSerializer,
-    RecipeReadSerializer,
+    RecipeGetSerializer,
     RecipeCreateSerializer,
+    ShoppingCartSerializer,
+    FavoriteRecipeSerializer,
 )
 from users.models import User, Subscribe
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from recipes.models import Ingredient, Tag, Recipe
+from recipes.models import Ingredient, Tag, Recipe, FavoriteRecipe, ShoppingCart
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import IngredientFilter, RecipeFilter
 from .permission import AuthorOrReadOnly
@@ -82,5 +84,57 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
-            return RecipeReadSerializer
+            return RecipeGetSerializer
         return RecipeCreateSerializer
+
+
+class ShoppingCartViewSet(
+    mixins.DestroyModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet
+):
+    queryset = ShoppingCart.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ShoppingCartSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = {"user": request.user.id, "recipe": self.kwargs.get("id")}
+        serializer = ShoppingCartSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, *args, **kwargs):
+        obj = ShoppingCart.objects.filter(
+            user_id=request.user.id, recipe_id=self.kwargs.get("id")
+        )
+        if obj:
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            "Такого рецепта нет в корзине", status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class FavoriteRecipeViewSet(
+    mixins.DestroyModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet
+):
+    queryset = FavoriteRecipe.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = FavoriteRecipeSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = {"user": request.user.id, "recipe": self.kwargs.get("id")}
+        serializer = FavoriteRecipeSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, *args, **kwargs):
+        obj = FavoriteRecipe.objects.filter(
+            user_id=request.user.id, recipe_id=self.kwargs.get("id")
+        )
+        if obj:
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            "Такого рецепта нет в избранном", status=status.HTTP_400_BAD_REQUEST
+        )

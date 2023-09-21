@@ -2,7 +2,14 @@ from rest_framework.exceptions import ValidationError
 from rest_framework import serializers, status
 from djoser.serializers import UserSerializer
 from users.models import User, Subscribe
-from recipes.models import Ingredient, Tag, Recipe, IngredientsRecipe
+from recipes.models import (
+    Ingredient,
+    Tag,
+    Recipe,
+    IngredientsRecipe,
+    FavoriteRecipe,
+    ShoppingCart,
+)
 from drf_extra_fields.fields import Base64ImageField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.transaction import atomic
@@ -78,7 +85,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "measurement_unit", "amount")
 
 
-class RecipeReadSerializer(serializers.ModelSerializer):
+class RecipeGetSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer()
     tags = TagSerializer(many=True)
     ingredients = RecipeIngredientSerializer(many=True, source="ingredients_recipe")
@@ -193,4 +200,49 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
-        return RecipeReadSerializer(instance, context=self.context).data
+        return RecipeGetSerializer(instance, context=self.context).data
+
+
+class RecipeShowSerializer(serializers.ModelSerializer):
+    name = serializers.ReadOnlyField()
+    cooking_time = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Recipe
+        fields = ("id", "name", "image", "cooking_time")
+
+
+class ShoppingCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShoppingCart
+        fields = (
+            "user",
+            "recipe",
+        )
+
+    def validate(self, data):
+        if ShoppingCart.objects.filter(user_id=data["user"], recipe_id=data["recipe"]):
+            raise serializers.ValidationError({"shopping_cart": "Рецепт уже добавлен!"})
+        return data
+
+    def to_representation(self, instance):
+        return RecipeShowSerializer(instance.recipe).data
+
+
+class FavoriteRecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FavoriteRecipe
+        fields = (
+            "user",
+            "recipe",
+        )
+
+    def validate(self, data):
+        if FavoriteRecipe.objects.filter(
+            user_id=data["user"], recipe_id=data["recipe"]
+        ):
+            raise serializers.ValidationError({"favorite": "Рецепт уже добавлен!"})
+        return data
+
+    def to_representation(self, instance):
+        return RecipeShowSerializer(instance.recipe).data
