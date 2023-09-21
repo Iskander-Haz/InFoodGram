@@ -6,14 +6,17 @@ from .serializers import (
     SubscribeSerializer,
     IngredientSerializer,
     TagSerializer,
+    RecipeReadSerializer,
+    RecipeCreateSerializer,
 )
 from users.models import User, Subscribe
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from recipes.models import Ingredient, Tag
+from recipes.models import Ingredient, Tag, Recipe
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import IngredientFilter
+from .filters import IngredientFilter, RecipeFilter
+from .permission import AuthorOrReadOnly
 
 
 class CustomUserViewSet(UserViewSet):
@@ -61,3 +64,23 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
+    permission_classes = (AuthorOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
+    http_method_names = ["get", "post", "patch", "create", "delete"]
+
+    @staticmethod
+    def create_object(serializer_class, pk, request):
+        data = {"user": request.user.id, "recipe": pk}
+        serializer = serializer_class(data=data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        return serializer.save()
+
+    def get_serializer_class(self):
+        if self.action in ("list", "retrieve"):
+            return RecipeReadSerializer
+        return RecipeCreateSerializer
