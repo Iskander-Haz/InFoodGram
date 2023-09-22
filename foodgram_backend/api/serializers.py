@@ -248,7 +248,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
 
 class RecipeShowSerializer(serializers.ModelSerializer):
-    """Сериализатор для сокращенного показа рецептов в подписках/избранном/списке покупок"""
+    """Сериализатор для сокращенного показа
+    рецептов в подписках/избранном/списке покупок"""
 
     name = serializers.ReadOnlyField()
     cooking_time = serializers.ReadOnlyField()

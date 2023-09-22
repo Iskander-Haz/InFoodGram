@@ -145,7 +145,11 @@ class FavoriteRecipe(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user.first_name} - {self.user.last_name} - {self.recipe.name}"
+        return (
+            f"{self.user.first_name}"
+            f"- {self.user.last_name}"
+            f"- {self.recipe.name}"
+        )
 
 
 class ShoppingCart(models.Model):
@@ -173,4 +177,8 @@ class ShoppingCart(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.user.first_name} - {self.user.last_name} - {self.recipe.name}"
+        return (
+            f"{self.user.first_name}"
+            f"- {self.user.last_name}"
+            f"- {self.recipe.name}"
+        )
