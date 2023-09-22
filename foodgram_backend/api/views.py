@@ -40,7 +40,9 @@ class CustomUserViewSet(UserViewSet):
     permission_classes = (AuthorOrReadOnly,)
 
     @action(
-        detail=True, methods=("post", "delete"), permission_classes=(IsAuthenticated,)
+        detail=True,
+        methods=("post", "delete"),
+        permission_classes=(IsAuthenticated,),
     )
     def subscribe(self, request, **kwargs):
         user = request.user
@@ -64,7 +66,9 @@ class CustomUserViewSet(UserViewSet):
         user = request.user
         queryset = User.objects.filter(subscribing__user=user)
         pages = self.paginate_queryset(queryset)
-        serializer = SubscribeSerializer(pages, many=True, context={"request": request})
+        serializer = SubscribeSerializer(
+            pages, many=True, context={"request": request}
+        )
         return self.get_paginated_response(serializer.data)
 
 
@@ -114,7 +118,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         ingredients = (
-            IngredientsRecipe.objects.filter(recipe__shopping_cart__user=request.user)
+            IngredientsRecipe.objects.filter(
+                recipe__shopping_cart__user=request.user
+            )
             .values("ingredient__name", "ingredient__measurement_unit")
             .annotate(sum_amount=Sum("amount"))
         )
@@ -193,5 +199,6 @@ class FavoriteRecipeViewSet(
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
-            "Такого рецепта нет в избранном", status=status.HTTP_400_BAD_REQUEST
+            "Такого рецепта нет в избранном",
+            status=status.HTTP_400_BAD_REQUEST,
         )

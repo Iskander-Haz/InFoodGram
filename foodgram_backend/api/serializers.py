@@ -45,7 +45,10 @@ class SubscribeSerializer(CustomUserSerializer):
     recipes = serializers.SerializerMethodField()
 
     class Meta(CustomUserSerializer.Meta):
-        fields = CustomUserSerializer.Meta.fields + ("recipes_count", "recipes")
+        fields = CustomUserSerializer.Meta.fields + (
+            "recipes_count",
+            "recipes",
+        )
         read_only_fields = ("email", "username")
 
     def validate(self, data):
@@ -97,7 +100,9 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     id = serializers.ReadOnlyField(source="ingredient.id")
     name = serializers.ReadOnlyField(source="ingredient.name")
-    measurement_unit = serializers.ReadOnlyField(source="ingredient.measurement_unit")
+    measurement_unit = serializers.ReadOnlyField(
+        source="ingredient.measurement_unit"
+    )
 
     class Meta:
         model = IngredientsRecipe
@@ -109,7 +114,9 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 
     author = CustomUserSerializer()
     tags = TagSerializer(many=True)
-    ingredients = RecipeIngredientSerializer(many=True, source="ingredients_recipe")
+    ingredients = RecipeIngredientSerializer(
+        many=True, source="ingredients_recipe"
+    )
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
     image = Base64ImageField()
@@ -131,11 +138,17 @@ class RecipeGetSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         user = self.context.get("request").user
-        return user.is_authenticated and user.favorites.filter(recipe=obj).exists()
+        return (
+            user.is_authenticated
+            and user.favorites.filter(recipe=obj).exists()
+        )
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get("request").user
-        return user.is_authenticated and user.shopping_cart.filter(recipe=obj).exists()
+        return (
+            user.is_authenticated
+            and user.shopping_cart.filter(recipe=obj).exists()
+        )
 
 
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
@@ -154,7 +167,9 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
 class RecipeCreateSerializer(serializers.ModelSerializer):
     """Сериализатор создания/изминения рецепта"""
 
-    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.all()
+    )
     author = CustomUserSerializer(read_only=True)
     ingredients = RecipeIngredientCreateSerializer(many=True)
     image = Base64ImageField()
@@ -177,16 +192,20 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if not data.get("tags"):
-            raise serializers.ValidationError({"tags": "Вы не можете не указать тег!"})
+            raise serializers.ValidationError(
+                {"tags": "Вы не можете не указать тег!"}
+            )
         if len({tag.id for tag in data.get("tags")}) != len(data.get("tags")):
-            raise serializers.ValidationError({"tags": "Вы уже указали такой тег!"})
+            raise serializers.ValidationError(
+                {"tags": "Вы уже указали такой тег!"}
+            )
         if not data.get("ingredients"):
             raise serializers.ValidationError(
                 {"ingredients": "Вы не можете не добавить ингридиент!"}
             )
-        if len({ingredient["id"] for ingredient in data.get("ingredients")}) != len(
-            data.get("ingredients")
-        ):
+        if len(
+            {ingredient["id"] for ingredient in data.get("ingredients")}
+        ) != len(data.get("ingredients")):
             raise serializers.ValidationError(
                 {"ingredients": "Вы уже добавили такой ингридиент!"}
             )
@@ -250,8 +269,12 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        if ShoppingCart.objects.filter(user_id=data["user"], recipe_id=data["recipe"]):
-            raise serializers.ValidationError({"shopping_cart": "Рецепт уже добавлен!"})
+        if ShoppingCart.objects.filter(
+            user_id=data["user"], recipe_id=data["recipe"]
+        ):
+            raise serializers.ValidationError(
+                {"shopping_cart": "Рецепт уже добавлен!"}
+            )
         return data
 
     def to_representation(self, instance):
@@ -272,7 +295,9 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
         if FavoriteRecipe.objects.filter(
             user_id=data["user"], recipe_id=data["recipe"]
         ):
-            raise serializers.ValidationError({"favorite": "Рецепт уже добавлен!"})
+            raise serializers.ValidationError(
+                {"favorite": "Рецепт уже добавлен!"}
+            )
         return data
 
     def to_representation(self, instance):

@@ -12,7 +12,10 @@ class User(AbstractUser):
         ADMIN = "admin", "Администратор"
 
     role = models.CharField(
-        max_length=10, default=Role.USER, choices=Role.choices, verbose_name="Роль"
+        max_length=10,
+        default=Role.USER,
+        choices=Role.choices,
+        verbose_name="Роль",
     )
     password = models.CharField(max_length=150, verbose_name="Пароль")
 
@@ -43,13 +46,18 @@ class Subscribe(models.Model):
     )
 
     author = models.ForeignKey(
-        User, related_name="subscribing", on_delete=models.CASCADE, verbose_name="Автор"
+        User,
+        related_name="subscribing",
+        on_delete=models.CASCADE,
+        verbose_name="Автор",
     )
 
     class Meta:
         ordering = ("-id",)
         constraints = (
-            UniqueConstraint(fields=("user", "author"), name="unique_subscription"),
+            UniqueConstraint(
+                fields=("user", "author"), name="unique_subscription"
+            ),
         )
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"

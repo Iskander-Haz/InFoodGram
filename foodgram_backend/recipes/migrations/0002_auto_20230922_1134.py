@@ -5,19 +5,29 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('recipes', '0001_initial'),
+        ("recipes", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='recipe',
-            options={'ordering': ('-pub_date',), 'verbose_name': 'Рецепт', 'verbose_name_plural': 'Рецепты'},
+            name="recipe",
+            options={
+                "ordering": ("-pub_date",),
+                "verbose_name": "Рецепт",
+                "verbose_name_plural": "Рецепты",
+            },
         ),
         migrations.AlterField(
-            model_name='tag',
-            name='color',
-            field=colorfield.fields.ColorField(default='#FFFFFF', image_field=None, max_length=18, samples=None, unique=True, verbose_name='Цвет'),
+            model_name="tag",
+            name="color",
+            field=colorfield.fields.ColorField(
+                default="#FFFFFF",
+                image_field=None,
+                max_length=18,
+                samples=None,
+                unique=True,
+                verbose_name="Цвет",
+            ),
         ),
     ]

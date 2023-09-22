@@ -7,7 +7,9 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 class Ingredient(models.Model):
     """Модель ингридиента"""
 
-    name = models.CharField(max_length=200, verbose_name="Название ингредиента")
+    name = models.CharField(
+        max_length=200, verbose_name="Название ингредиента"
+    )
     measurement_unit = models.CharField(
         max_length=200, verbose_name="Единицы измерения"
     )
@@ -26,7 +28,9 @@ class Ingredient(models.Model):
 class Tag(models.Model):
     """Модель тега"""
 
-    name = models.CharField(max_length=200, unique=True, verbose_name="Название")
+    name = models.CharField(
+        max_length=200, unique=True, verbose_name="Название"
+    )
     color = ColorField(unique=True, format="hex", verbose_name="Цвет")
     slug = models.SlugField(max_length=200, unique=True, verbose_name="Слаг")
 
@@ -46,7 +50,10 @@ class Recipe(models.Model):
         verbose_name="Тег",
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="recipes", verbose_name="Автор"
+        User,
+        on_delete=models.CASCADE,
+        related_name="recipes",
+        verbose_name="Автор",
     )
     name = models.CharField(max_length=200, verbose_name="Название рецепта")
     image = models.ImageField(upload_to="recipes/", verbose_name="Картинка")
@@ -55,7 +62,9 @@ class Recipe(models.Model):
         verbose_name="Время приготовления",
         validators=[
             MinValueValidator(1, message="Время не может быть меньше 1 мин."),
-            MaxValueValidator(30240, message="Нельзя готовить дольше 3х недель!"),
+            MaxValueValidator(
+                30240, message="Нельзя готовить дольше 3х недель!"
+            ),
         ],
     )
     ingredients = models.ManyToManyField(
@@ -94,14 +103,17 @@ class IngredientsRecipe(models.Model):
         verbose_name="Количество",
         validators=[
             MinValueValidator(1, message="Количество не может быть меньше 1"),
-            MaxValueValidator(32000, message="Количество не может быть меньше 32000"),
+            MaxValueValidator(
+                32000, message="Количество не может быть меньше 32000"
+            ),
         ],
     )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["recipe", "ingredient"], name="unique_recipe_ingredient"
+                fields=["recipe", "ingredient"],
+                name="unique_recipe_ingredient",
             ),
         ]
 
@@ -155,7 +167,8 @@ class ShoppingCart(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "recipe"], name="unique_user_recipe_shopping_cart"
+                fields=["user", "recipe"],
+                name="unique_user_recipe_shopping_cart",
             ),
         ]
 
