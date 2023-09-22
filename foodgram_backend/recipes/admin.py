@@ -11,7 +11,12 @@ from .models import (
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("name",)
+    list_filter = ("name",)
+
+
+class IngredientInline(admin.TabularInline):
+    model = IngredientsRecipe
 
 
 @admin.register(Tag)
@@ -21,7 +26,12 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("name", "author")
+    list_filter = ("name", "author")
+
+    inlines = [
+        IngredientInline,
+    ]
 
 
 @admin.register(IngredientsRecipe)

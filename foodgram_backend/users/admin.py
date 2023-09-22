@@ -4,7 +4,8 @@ from .models import User, Subscribe
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("username", "email")
+    list_filter = ("username", "email")
 
 
 @admin.register(Subscribe)
