@@ -6,6 +6,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Ingredient(models.Model):
+    """Модель ингридиента"""
+
     name = models.CharField(max_length=200, verbose_name="Название ингредиента")
     measurement_unit = models.CharField(
         max_length=200, verbose_name="Единицы измерения"
@@ -23,6 +25,8 @@ class Ingredient(models.Model):
 
 
 class Tag(models.Model):
+    """Модель тега"""
+
     name = models.CharField(max_length=200, unique=True, verbose_name="Название")
     color = ColorField(unique=True, format="hex", verbose_name="Цвет")
     slug = models.SlugField(max_length=200, unique=True, verbose_name="Слаг")
@@ -35,6 +39,8 @@ class Tag(models.Model):
 
 
 class Recipe(models.Model):
+    """Модель рецепта"""
+
     tags = models.ManyToManyField(
         Tag,
         related_name="recipes",
@@ -64,12 +70,15 @@ class Recipe(models.Model):
     class Meta:
         ordering = ("-pub_date",)
         verbose_name = "Рецепт"
+        verbose_name_plural = "Рецепты"
 
     def __str__(self):
         return self.name
 
 
 class IngredientsRecipe(models.Model):
+    """Модель ингридиенты-рецепт"""
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -102,7 +111,7 @@ class IngredientsRecipe(models.Model):
 
 
 class FavoriteRecipe(models.Model):
-    """Мдель избранных рецептов"""
+    """Модель избранных рецептов"""
 
     user = models.ForeignKey(
         User,

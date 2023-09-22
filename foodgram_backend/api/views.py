@@ -22,6 +22,8 @@ from .permission import AuthorOrReadOnly
 
 
 class CustomUserViewSet(UserViewSet):
+    """Вьюсет для пользователя и подписок"""
+
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
 
@@ -55,6 +57,8 @@ class CustomUserViewSet(UserViewSet):
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для ингридиентов"""
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -63,12 +67,16 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для тегов"""
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """Вьюсет для рецептов"""
+
     queryset = Recipe.objects.all()
     permission_classes = (AuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
@@ -91,6 +99,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class ShoppingCartViewSet(
     mixins.DestroyModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet
 ):
+    """Вьюсет для списка покупок"""
+
     queryset = ShoppingCart.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = ShoppingCartSerializer
@@ -117,6 +127,8 @@ class ShoppingCartViewSet(
 class FavoriteRecipeViewSet(
     mixins.DestroyModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet
 ):
+    """Вьюсет для избранного"""
+
     queryset = FavoriteRecipe.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = FavoriteRecipeSerializer

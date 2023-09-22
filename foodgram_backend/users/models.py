@@ -5,19 +5,19 @@ from django.db.models import UniqueConstraint
 
 
 class User(AbstractUser):
+    """Можель пользователя"""
+
     class Role(models.TextChoices):
-        USER = "user", "пользователь"
-        ADMIN = "admin", "администратор"
+        USER = "user", "Пользователь"
+        ADMIN = "admin", "Администратор"
 
     role = models.CharField(
-        "роль", max_length=10, default=Role.USER, choices=Role.choices
+        max_length=10, default=Role.USER, choices=Role.choices, verbose_name="Роль"
     )
-    password = models.CharField("пароль", max_length=150)
+    password = models.CharField(max_length=150, verbose_name="Пароль")
 
     email = models.EmailField(
-        "адрес электронной почты",
-        max_length=254,
-        unique=True,
+        max_length=254, unique=True, verbose_name="Адрес электронной почты"
     )
 
     USERNAME_FIELD = "email"
@@ -25,26 +25,25 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ("id",)
-        verbose_name = "пользователь"
-        verbose_name_plural = "пользователи"
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
 
     def str(self):
         return self.username
 
 
 class Subscribe(models.Model):
+    """Модель подписок"""
+
     user = models.ForeignKey(
         User,
-        verbose_name="Подписчик",
         related_name="subscriber",
         on_delete=models.CASCADE,
+        verbose_name="Подписчик",
     )
 
     author = models.ForeignKey(
-        User,
-        verbose_name="Автор",
-        related_name="subscribing",
-        on_delete=models.CASCADE,
+        User, related_name="subscribing", on_delete=models.CASCADE, verbose_name="Автор"
     )
 
     class Meta:

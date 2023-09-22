@@ -17,12 +17,12 @@ router.register("ingredients", IngredientViewSet, basename="ingredients")
 router.register("tags", TagViewSet, basename="tags")
 router.register("recipes", RecipeViewSet, basename="recipes")
 router.register(
-    "recipes/(?P<id>[^/.]+)/shopping_cart",
-    ShoppingCartViewSet,
-    basename="shopping_cart",
+    r"recipes/(?P<id>\d+)/favorite", FavoriteRecipeViewSet, basename="favorite"
 )
 router.register(
-    "recipes/(?P<id>[^/.]+)/favorite", FavoriteRecipeViewSet, basename="favorite"
+    r"recipes/(?P<id>\d+)/shopping_cart",
+    ShoppingCartViewSet,
+    basename="shopping_cart",
 )
 
 urlpatterns = [
