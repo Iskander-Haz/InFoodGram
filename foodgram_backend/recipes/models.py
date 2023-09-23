@@ -1,7 +1,12 @@
 from colorfield.fields import ColorField
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from users.models import User
-from django.core.validators import MinValueValidator, MaxValueValidator
+
+MIN_VALUE_COOKING_TIME = 1
+MAX_VALUE_COOKING_TIME = 32000
+MIN_VALUE_AMOUNT = 1
+MAX_VALUE_AMOUNT = 32000
 
 
 class Ingredient(models.Model):
@@ -61,9 +66,13 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name="Время приготовления",
         validators=[
-            MinValueValidator(1, message="Время не может быть меньше 1 мин."),
+            MinValueValidator(
+                MIN_VALUE_COOKING_TIME,
+                message="Время не может быть меньше 1 мин.",
+            ),
             MaxValueValidator(
-                30240, message="Нельзя готовить дольше 3х недель!"
+                MAX_VALUE_COOKING_TIME,
+                message="Так долго готовить недопустимо!",
             ),
         ],
     )
@@ -102,9 +111,12 @@ class IngredientsRecipe(models.Model):
     amount = models.PositiveSmallIntegerField(
         verbose_name="Количество",
         validators=[
-            MinValueValidator(1, message="Количество не может быть меньше 1"),
+            MinValueValidator(
+                MIN_VALUE_AMOUNT, message="Количество не может быть меньше 1"
+            ),
             MaxValueValidator(
-                32000, message="Количество не может быть меньше 32000"
+                MAX_VALUE_AMOUNT,
+                message="Количество не может быть больше 32000",
             ),
         ],
     )

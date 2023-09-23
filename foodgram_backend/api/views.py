@@ -1,35 +1,36 @@
-from rest_framework.response import Response
-from rest_framework import status, viewsets, mixins
-from djoser.views import UserViewSet
-from .serializers import (
-    CustomUserSerializer,
-    SubscribeSerializer,
-    IngredientSerializer,
-    TagSerializer,
-    RecipeGetSerializer,
-    RecipeCreateSerializer,
-    ShoppingCartSerializer,
-    FavoriteRecipeSerializer,
-)
-from users.models import User, Subscribe
-from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
-from rest_framework.decorators import action
-from recipes.models import (
-    Ingredient,
-    Tag,
-    Recipe,
-    FavoriteRecipe,
-    ShoppingCart,
-    IngredientsRecipe,
-)
-from django_filters.rest_framework import DjangoFilterBackend
-from .filters import IngredientFilter, RecipeFilter
-from .permission import AuthorOrReadOnly
 from datetime import datetime
 
 from django.db.models import Sum
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
+from recipes.models import (
+    FavoriteRecipe,
+    Ingredient,
+    IngredientsRecipe,
+    Recipe,
+    ShoppingCart,
+    Tag,
+)
+from rest_framework import mixins, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.response import Response
+from users.models import Subscribe, User
+
+from .filters import IngredientFilter, RecipeFilter
+from .permission import AuthorOrReadOnly
+from .serializers import (
+    CustomUserSerializer,
+    FavoriteRecipeSerializer,
+    IngredientSerializer,
+    RecipeCreateSerializer,
+    RecipeGetSerializer,
+    ShoppingCartSerializer,
+    SubscribeSerializer,
+    TagSerializer,
+)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -164,9 +165,7 @@ class ShoppingCartViewSet(
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, *args, **kwargs):
-        obj = ShoppingCart.objects.filter(
-            user_id=request.user.id, recipe_id=self.kwargs.get("id")
-        )
+        obj = request.user.shopping_cart.get(recipe_id=self.kwargs.get("id"))
         if obj:
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -192,9 +191,7 @@ class FavoriteRecipeViewSet(
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, *args, **kwargs):
-        obj = FavoriteRecipe.objects.filter(
-            user_id=request.user.id, recipe_id=self.kwargs.get("id")
-        )
+        obj = request.user.favorites.get(recipe_id=self.kwargs.get("id"))
         if obj:
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)

@@ -1,18 +1,23 @@
-from rest_framework.exceptions import ValidationError
-from rest_framework import serializers, status
-from djoser.serializers import UserSerializer
-from users.models import User, Subscribe
-from recipes.models import (
-    Ingredient,
-    Tag,
-    Recipe,
-    IngredientsRecipe,
-    FavoriteRecipe,
-    ShoppingCart,
-)
-from drf_extra_fields.fields import Base64ImageField
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.transaction import atomic
+from djoser.serializers import UserSerializer
+from drf_extra_fields.fields import Base64ImageField
+from recipes.models import (
+    FavoriteRecipe,
+    Ingredient,
+    IngredientsRecipe,
+    Recipe,
+    ShoppingCart,
+    Tag,
+)
+from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
+from users.models import Subscribe, User
+
+MIN_VALUE_COOKING_TIME = 1
+MAX_VALUE_COOKING_TIME = 32000
+MIN_VALUE_AMOUNT = 1
+MAX_VALUE_AMOUNT = 32000
 
 
 class CustomUserSerializer(UserSerializer):
@@ -46,15 +51,16 @@ class SubscribeSerializer(CustomUserSerializer):
 
     class Meta(CustomUserSerializer.Meta):
         fields = CustomUserSerializer.Meta.fields + (
-            "recipes_count",
             "recipes",
+            "recipes_count",
         )
         read_only_fields = ("email", "username")
 
     def validate(self, data):
         author = self.instance
         user = self.context.get("request").user
-        if Subscribe.objects.filter(author=author, user=user).exists():
+        # if Subscribe.objects.filter(author=author, user=user).exists():
+        if author.subscribing.filter(user=user).exists():
             raise ValidationError(
                 detail="Вы не можете подписаться на автора повторно!",
                 code=status.HTTP_400_BAD_REQUEST,
@@ -67,7 +73,8 @@ class SubscribeSerializer(CustomUserSerializer):
         return data
 
     def get_recipes(self, obj):
-        recipes = Recipe.objects.filter(author=obj)
+        # recipes = Recipe.objects.filter(author=obj)
+        recipes = obj.recipes.all()
         return RecipeShowSerializer(recipes, many=True).data
 
     def get_recipes_count(self, obj):
@@ -156,7 +163,10 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
 
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     amount = serializers.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(32000)]
+        validators=[
+            MinValueValidator(MIN_VALUE_AMOUNT),
+            MaxValueValidator(MAX_VALUE_AMOUNT),
+        ]
     )
 
     class Meta:
@@ -174,7 +184,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientCreateSerializer(many=True)
     image = Base64ImageField()
     cooking_time = serializers.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(30240)]
+        validators=[
+            MinValueValidator(MIN_VALUE_COOKING_TIME),
+            MaxValueValidator(MAX_VALUE_COOKING_TIME),
+        ]
     )
 
     class Meta:
@@ -195,7 +208,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"tags": "Вы не можете не указать тег!"}
             )
-        if len({tag.id for tag in data.get("tags")}) != len(data.get("tags")):
+        # if len({tag.id for tag in data.get("tags")}) != len(data.get("tags")):
+        if len(set(data.get("tags"))) != len(data.get("tags")):
             raise serializers.ValidationError(
                 {"tags": "Вы уже указали такой тег!"}
             )
@@ -270,9 +284,9 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        if ShoppingCart.objects.filter(
-            user_id=data["user"], recipe_id=data["recipe"]
-        ):
+        # if ShoppingCart.objects.filter(user_id=data["user"], recipe_id=data["recipe"]):
+        user = data["user"]
+        if user.shopping_cart.filter(recipe_id=data["recipe"]).exists():
             raise serializers.ValidationError(
                 {"shopping_cart": "Рецепт уже добавлен!"}
             )
@@ -293,9 +307,9 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        if FavoriteRecipe.objects.filter(
-            user_id=data["user"], recipe_id=data["recipe"]
-        ):
+        # if FavoriteRecipe.objects.filter(user_id=data["user"], recipe_id=data["recipe"]):
+        user = data["user"]
+        if user.favorites.filter(recipe_id=data["recipe"]).exists():
             raise serializers.ValidationError(
                 {"favorite": "Рецепт уже добавлен!"}
             )

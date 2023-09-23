@@ -1,5 +1,4 @@
 from django.contrib.auth.models import AbstractUser
-
 from django.db import models
 from django.db.models import UniqueConstraint
 
@@ -61,3 +60,6 @@ class Subscribe(models.Model):
         )
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
+
+    def __str__(self):
+        return f"{self.user.username}" f"- {self.author.username}"
