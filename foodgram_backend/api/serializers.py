@@ -73,7 +73,6 @@ class SubscribeSerializer(CustomUserSerializer):
         return data
 
     def get_recipes(self, obj):
-        # recipes = Recipe.objects.filter(author=obj)
         recipes = obj.recipes.all()
         return RecipeShowSerializer(recipes, many=True).data
 
@@ -208,7 +207,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"tags": "Вы не можете не указать тег!"}
             )
-        # if len({tag.id for tag in data.get("tags")}) != len(data.get("tags")):
         if len(set(data.get("tags"))) != len(data.get("tags")):
             raise serializers.ValidationError(
                 {"tags": "Вы уже указали такой тег!"}
@@ -284,7 +282,6 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        # if ShoppingCart.objects.filter(user_id=data["user"], recipe_id=data["recipe"]):
         user = data["user"]
         if user.shopping_cart.filter(recipe_id=data["recipe"]).exists():
             raise serializers.ValidationError(
@@ -307,7 +304,6 @@ class FavoriteRecipeSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        # if FavoriteRecipe.objects.filter(user_id=data["user"], recipe_id=data["recipe"]):
         user = data["user"]
         if user.favorites.filter(recipe_id=data["recipe"]).exists():
             raise serializers.ValidationError(
