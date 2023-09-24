@@ -5,32 +5,21 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import (
-    FavoriteRecipe,
-    Ingredient,
-    IngredientsRecipe,
-    Recipe,
-    ShoppingCart,
-    Tag,
-)
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
+
+from recipes.models import (FavoriteRecipe, Ingredient, IngredientsRecipe,
+                            Recipe, ShoppingCart, Tag)
 from users.models import Subscribe, User
 
 from .filters import IngredientFilter, RecipeFilter
 from .permission import AuthorOrReadOnly
-from .serializers import (
-    CustomUserSerializer,
-    FavoriteRecipeSerializer,
-    IngredientSerializer,
-    RecipeCreateSerializer,
-    RecipeGetSerializer,
-    ShoppingCartSerializer,
-    SubscribeSerializer,
-    TagSerializer,
-)
+from .serializers import (CustomUserSerializer, FavoriteRecipeSerializer,
+                          IngredientSerializer, RecipeCreateSerializer,
+                          RecipeGetSerializer, ShoppingCartSerializer,
+                          SubscribeSerializer, TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
