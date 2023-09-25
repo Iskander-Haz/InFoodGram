@@ -147,6 +147,8 @@ GET `/api/recipes/`
   ]
 }
 
+
+
 2. Создание нового рецепта:
 
 POST `/api/recipes/`
