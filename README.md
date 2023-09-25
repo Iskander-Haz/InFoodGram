@@ -1,6 +1,6 @@
 # Foodgram
 
-[Ссылка на проект](https://infoodgram.ddns.net/)
+[InFoodGram](https://infoodgram.ddns.net/)
 
 **Продуктовый помощник**. Создавайте рецепты, делитесь ими с друзьями, скачивайте удобный список покупок и наслаждайтесь вкусными блюдами.
 
@@ -152,7 +152,7 @@ GET `/api/recipes/`
 POST `/api/recipes/`
 
 Body:
-
+```json
 {
   "ingredients": [
     {
@@ -176,7 +176,7 @@ Body:
 }
 
 Body:
-
+```json
 {
   "tags": [
     {
